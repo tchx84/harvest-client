@@ -20,3 +20,10 @@ collecting reliable metadata from the Journal.
 4. Go the web accounts section at the control panel.
 
 5. Complete the server information and click on the collect button.
+
+## Automatic collection
+
+* In order to enable automatic collection:
+
+        $cd /path/to/somewhere/harvest-client/
+        $cp etc/harvest-collect-ifup /etc/NetworkManager/dispatcher.d/
