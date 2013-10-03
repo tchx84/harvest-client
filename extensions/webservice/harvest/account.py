@@ -14,11 +14,30 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
+import dbus
+import logging
+
 from jarabe.webservice import account
+from jarabe.webservice import accountsmanager
 from sugar3.graphics.menuitem import MenuItem
 
 
 class Account(account.Account):
+
+    DBUS_COLLECT_SIGNAL = 'Collect'
+    DBUS_HARVEST_IFACE = 'org.sugarlabs.Harvest'
+    DBUS_HARVEST_PATH = '/org/sugarlabs/Havest'
+
+    def __init__(self):
+        bus = dbus.SystemBus()
+        bus.add_signal_receiver(self.__collect_cb,
+                                self.DBUS_COLLECT_SIGNAL,
+                                self.DBUS_HARVEST_IFACE)
+
+    def __collect_cb(self):
+        logging.debug('harvest: collect triggered!')
+        service = accountsmanager.get_service('harvest')
+        service.Harvest().collect()
 
     def get_token_state(self):
         return self.STATE_VALID

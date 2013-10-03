@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+# Copyright (c) 2013 Martin Abente Lahaye. - tch@sugarlabs.org
+# Licensed under the terms of the GNU GPL v2 or later.
+
+if [ "$2" = "up" ]; then
+    dbus-send --system /org/sugarlabs/Harvest org.sugarlabs.Harvest.Collect
+fi
