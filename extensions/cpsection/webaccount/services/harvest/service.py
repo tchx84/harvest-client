@@ -57,7 +57,7 @@ class WebService(WebService):
         desc_label.set_alignment(0, 0)
         form.pack_start(desc_label, True, False, 0)
 
-        host_field = AutoField(_('Hostname'), self._service.Harvest.HOSTNAME)
+        host_field = AutoField(_('URL'), self._service.Harvest.HOSTNAME)
         label_group.add_widget(host_field.label)
         entry_group.add_widget(host_field.entry)
         form.pack_start(host_field, False, True, 0)
