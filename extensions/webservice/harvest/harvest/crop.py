@@ -15,6 +15,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 import os
+import re
 import json
 
 from gi.repository import GConf
@@ -69,8 +70,8 @@ class Crop(object):
         elif os.path.exists(self.X86_SN_PATH):
             path = self.X86_SN_PATH
         if path is not None:
-            with file(path) as fd:
-                return fd.read().strip()[:11]
+            with open(path, 'r') as file:
+                return re.sub(r'(?!\w).', '', file.read())
         return None
 
     def _age(self):
