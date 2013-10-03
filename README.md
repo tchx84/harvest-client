@@ -8,7 +8,7 @@ collecting reliable metadata from the Journal.
 1. Get the harvest-client:
 
         $cd /path/to/somewhere/
-        $git clone git@github.com:tchx84/harvest-client.git
+        $git clone https://github.com/tchx84/harvest-client.git
         $cd harvest-client
 
 2. Install the harvest-client:
