@@ -42,28 +42,5 @@ class Account(account.Account):
     def get_token_state(self):
         return self.STATE_VALID
 
-    def get_shared_journal_entry(self):
-        return HarvestJournalEntry()
-
-
-class HarvestJournalEntry(account.SharedJournalEntry):
-
-    def get_share_menu(self, metadata):
-        return ShareMenu()
-
-    def get_refresh_menu(self):
-        return RefreshMenu()
-
-
-class ShareMenu(MenuItem):
-    pass
-
-
-class RefreshMenu(MenuItem):
-
-    def set_metadata(self, metadata):
-        pass
-
-
 def get_account():
     return Account()
