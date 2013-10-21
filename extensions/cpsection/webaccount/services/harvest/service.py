@@ -120,7 +120,7 @@ class CollectButtonField(Gtk.HBox):
         GLib.idle_add(self.__do_collect_cb)
 
     def __do_collect_cb(self):
-        result = self._harvest().collect()
+        result = self._harvest().collect(skip=False)
         if result == self._harvest.TOO_SOON:
             self.label.set_text(_('Too soon to collect again.'))
         elif result == self._harvest.NOTHING:

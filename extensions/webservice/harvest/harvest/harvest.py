@@ -15,6 +15,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 import time
+import random
 import json
 import urllib2
 import urlparse
@@ -29,6 +30,7 @@ class Harvest(object):
 
     WEEKLY = 604800
     MONTHLY = 2592000
+    SKIPS = 7
     ENDPOINT = '/rpc/store'
     FREQUENCY = '/desktop/sugar/collaboration/harvest_frequency'
     TIMESTAMP = '/desktop/sugar/collaboration/harvest_timestamp'
@@ -38,6 +40,7 @@ class Harvest(object):
     NOTHING = 1
     OK = 2
     ERROR = 3
+    SKIPPED = 4
 
     def __init__(self):
         client = GConf.Client.get_default()
@@ -49,6 +52,9 @@ class Harvest(object):
     def _save_timestamp(self, timestamp):
         client = GConf.Client.get_default()
         self._last_timestamp = client.set_int(self.TIMESTAMP, timestamp)
+
+    def _selected(self):
+        return (not random.randrange(0, self.SKIPS))
 
     def _ready(self, timestamp):
         return (timestamp > self._timestamp + self._frequency)
@@ -71,7 +77,11 @@ class Harvest(object):
             'success' in info and \
             info['success'] is True
 
-    def collect(self):
+    def collect(self, skip=True):
+        if skip and not self._selected():
+            logging.warn('harvest: Skipped.')
+            return self.SKIPPED
+
         timestamp = int(time.time())
         if not self._ready(timestamp):
             logging.error('harvest: It is too soon for collecting again.')
