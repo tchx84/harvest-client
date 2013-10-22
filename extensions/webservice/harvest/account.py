@@ -17,6 +17,8 @@
 import dbus
 import logging
 
+from gi.repository import GLib
+
 from jarabe.webservice import account
 from jarabe.webservice import accountsmanager
 
@@ -32,6 +34,7 @@ class Account(account.Account):
         bus.add_signal_receiver(self.__collect_cb,
                                 self.DBUS_COLLECT_SIGNAL,
                                 self.DBUS_HARVEST_IFACE)
+        GLib.idle_add(self.__collect_cb)
 
     def __collect_cb(self):
         logging.debug('harvest: collect triggered!')
