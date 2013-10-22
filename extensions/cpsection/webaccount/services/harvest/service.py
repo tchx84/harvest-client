@@ -87,7 +87,7 @@ class WebService(WebService):
         inst_label.set_alignment(0, 0)
         collect_form.pack_start(inst_label, True, False, 0)
 
-        collect_field = CollectButtonField(self._service.Harvest)
+        collect_field = CollectButtonField(self._service)
         collect_form.pack_start(collect_field, False, True, 0)
 
         for c in container.get_children():
@@ -100,9 +100,9 @@ class WebService(WebService):
 class CollectButtonField(Gtk.HBox):
     __gtype_name__ = 'SugarCollectButtonField'
 
-    def __init__(self, harvest):
+    def __init__(self, service):
         Gtk.HBox.__init__(self, spacing=style.DEFAULT_SPACING)
-        self._harvest = harvest
+        self._service = service
 
         self.button = Gtk.Button(_('Collect'))
         self.button.set_alignment(1, 0.5)
@@ -120,15 +120,16 @@ class CollectButtonField(Gtk.HBox):
         GLib.idle_add(self.__do_collect_cb)
 
     def __do_collect_cb(self):
-        result = self._harvest().collect(skip=False)
-        if result == self._harvest.TOO_SOON:
+        try:
+            self._service.Harvest().collect(skip=False)
+        except self._service.TooSoonError:
             self.label.set_text(_('Too soon to collect again.'))
-        elif result == self._harvest.NOTHING:
+        except self._service.NothingNewError:
             self.label.set_text(_('Nothing new to collect.'))
-        elif result == self._harvest.OK:
-            self.label.set_text(_('Successfully collected.'))
-        else:
+        except self._service.SendError:
             self.label.set_text(_('Could not be collected.'))
+        else:
+            self.label.set_text(_('Successfully collected.'))
 
 
 class ComboField(Gtk.HBox):

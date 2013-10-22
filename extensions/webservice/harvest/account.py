@@ -19,7 +19,6 @@ import logging
 
 from jarabe.webservice import account
 from jarabe.webservice import accountsmanager
-from sugar3.graphics.menuitem import MenuItem
 
 
 class Account(account.Account):
@@ -37,10 +36,14 @@ class Account(account.Account):
     def __collect_cb(self):
         logging.debug('harvest: collect triggered!')
         service = accountsmanager.get_service('harvest')
-        service.Harvest().collect()
+        try:
+            service.Harvest().collect()
+        except Exception as err:
+            logging.error(err)
 
     def get_token_state(self):
         return self.STATE_VALID
+
 
 def get_account():
     return Account()

@@ -26,21 +26,29 @@ from gi.repository import GConf
 from crop import Crop
 
 
+class TooSoonError(Exception):
+    pass
+
+
+class NothingNewError(Exception):
+    pass
+
+
+class SendError(Exception):
+    pass
+
+
 class Harvest(object):
 
     WEEKLY = 604800
     MONTHLY = 2592000
     SKIPS = 7
+
     ENDPOINT = '/rpc/store'
     FREQUENCY = '/desktop/sugar/collaboration/harvest_frequency'
     TIMESTAMP = '/desktop/sugar/collaboration/harvest_timestamp'
     HOSTNAME = '/desktop/sugar/collaboration/harvest_hostname'
     API_KEY = '/desktop/sugar/collaboration/harvest_api_key'
-    TOO_SOON = 0
-    NOTHING = 1
-    OK = 2
-    ERROR = 3
-    SKIPPED = 4
 
     def __init__(self):
         client = GConf.Client.get_default()
@@ -54,6 +62,7 @@ class Harvest(object):
         self._last_timestamp = client.set_int(self.TIMESTAMP, timestamp)
 
     def _selected(self):
+        """ randomly determines if it will collect or not """
         return (not random.randrange(0, self.SKIPS))
 
     def _ready(self, timestamp):
@@ -79,22 +88,21 @@ class Harvest(object):
 
     def collect(self, skip=True):
         if skip and not self._selected():
-            logging.warn('harvest: Skipped.')
-            return self.SKIPPED
+            logging.warn('harvest: Skipped this time.')
+            return
 
         timestamp = int(time.time())
         if not self._ready(timestamp):
             logging.error('harvest: It is too soon for collecting again.')
-            return self.TOO_SOON
+            raise TooSoonError()
 
         crop = Crop(start=self._timestamp, end=timestamp)
         crop.collect()
+
         if not crop.grown():
             logging.error('harvest: Nothing new has grown.')
-            return self.NOTHING
+            raise NothingNewError()
 
-        if self._send(crop.serialize()):
-            self._save_timestamp(timestamp)
-            return self.OK
-
-        return self.ERROR
+        if not self._send(crop.serialize()):
+            raise SendError()
+        self._save_timestamp(timestamp)
