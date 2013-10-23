@@ -72,7 +72,7 @@ class Crop(object):
         if path is not None:
             with open(path, 'r') as file:
                 return re.sub(r'(?!\w).', '', file.read())
-        return None
+        return ''
 
     def _age(self):
         client = GConf.Client.get_default()
@@ -89,7 +89,7 @@ class Crop(object):
         activities = {}
         entries, count = datastore.find(self._query())
         for entry in entries:
-            activity_id = entry.metadata.get('activity', None)
+            activity_id = entry.metadata.get('activity', '')
             if activity_id not in activities:
                 activities[activity_id] = []
             activities[activity_id].append(self._instance(entry))
