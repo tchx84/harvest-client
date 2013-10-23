@@ -32,9 +32,9 @@ class HarvestLogger:
             return
         cls.logger = logging.getLogger(cls.LOG_NAME)
         cls.logger.setLevel(logging.DEBUG)
-        log_file = RotatingFileHandler(os.path.expanduser(cls.LOG_FILE))
+        log_file = RotatingFileHandler(os.path.expanduser(cls.LOG_FILE),
+                                       maxBytes=1048576, backupCount=3)
         log_file.setFormatter(Formatter(cls.LOG_FORMAT))
-        log_file.doRollover()
         cls.logger.addHandler(log_file)
         cls.logger.info('logger started.')
 
