@@ -15,7 +15,6 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 import dbus
-import logging
 
 from gi.repository import GLib
 
@@ -37,12 +36,11 @@ class Account(account.Account):
         GLib.idle_add(self.__collect_cb)
 
     def __collect_cb(self):
-        logging.debug('harvest: collect triggered!')
         service = accountsmanager.get_service('harvest')
         try:
             service.Harvest().collect()
-        except Exception as err:
-            logging.error(err)
+        except Exception:
+            pass
 
     def get_token_state(self):
         return self.STATE_VALID

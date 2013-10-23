@@ -19,23 +19,14 @@ import random
 import json
 import urllib2
 import urlparse
-import logging
 
 from gi.repository import GConf
 
-from crop import Crop
-
-
-class TooSoonError(Exception):
-    pass
-
-
-class NothingNewError(Exception):
-    pass
-
-
-class SendError(Exception):
-    pass
+from .crop import Crop
+from .errors import TooSoonError
+from .errors import NothingNewError
+from .errors import SendError
+from .harvest_logger import HarvestLogger
 
 
 class Harvest(object):
@@ -51,6 +42,7 @@ class Harvest(object):
     API_KEY = '/desktop/sugar/collaboration/harvest_api_key'
 
     def __init__(self):
+        HarvestLogger.setup()
         client = GConf.Client.get_default()
         self._frequency = client.get_int(self.FREQUENCY) or self.WEEKLY
         self._timestamp = client.get_int(self.TIMESTAMP)
@@ -79,7 +71,7 @@ class Harvest(object):
             response = urllib2.urlopen(req)
             info = json.loads(response.read())
         except Exception as err:
-            logging.error(err)
+            HarvestLogger.log(err)
             return False
 
         return isinstance(info, dict) and \
@@ -87,22 +79,25 @@ class Harvest(object):
             info['success'] is True
 
     def collect(self, skip=True):
+        HarvestLogger.log('triggered.')
+
         if skip and not self._selected():
-            logging.warn('harvest: Skipped this time.')
+            HarvestLogger.log('skipped this time.')
             return
 
         timestamp = int(time.time())
         if not self._ready(timestamp):
-            logging.error('harvest: It is too soon for collecting again.')
+            HarvestLogger.log('it is too soon for collecting again.')
             raise TooSoonError()
 
         crop = Crop(start=self._timestamp, end=timestamp)
         crop.collect()
 
         if not crop.grown():
-            logging.error('harvest: Nothing new has grown.')
+            HarvestLogger.log('nothing new has grown.')
             raise NothingNewError()
 
         if not self._send(crop.serialize()):
             raise SendError()
         self._save_timestamp(timestamp)
+        HarvestLogger.log('successfully collected.')
