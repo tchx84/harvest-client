@@ -14,6 +14,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
+import time
 from gettext import gettext as _
 
 from gi.repository import GConf
@@ -90,11 +91,44 @@ class WebService(WebService):
         collect_field = CollectButtonField(self._service)
         collect_form.pack_start(collect_field, False, True, 0)
 
+        info_field = InfoField(self._service.Harvest.TIMESTAMP)
+        collect_form.pack_start(info_field, True, False, 0)
+
         for c in container.get_children():
             container.remove(c)
 
         container.pack_start(workspace, False, False, 0)
         container.show_all()
+
+
+class InfoField(Gtk.Label):
+
+    def __init__(self, path):
+        Gtk.Label.__init__(self, '')
+        self._path = path
+
+        self.set_alignment(0, 0)
+        self.set_line_wrap(True)
+        self.modify_fg(Gtk.StateType.NORMAL,
+                       style.COLOR_SELECTION_GREY.get_gdk_color())
+        self._set_label()
+        self._set_notifier()
+
+    def _set_notifier(self):
+       client = GConf.Client.get_default()
+       self._notify = client.notify_add(self._path, self.__set_label_cb, None)
+
+    def __set_label_cb(self, *args):
+        self._set_label()
+
+    def _set_label(self):
+        client = GConf.Client.get_default()
+        timestamp = client.get_int(self._path)
+        if timestamp:
+            date = time.strftime("%D %H:%M", time.localtime(timestamp))
+            self.set_text(_('Collected at %s.') % date)
+        else:
+            self.set_text(_('Not collected.'))
 
 
 class CollectButtonField(Gtk.HBox):
