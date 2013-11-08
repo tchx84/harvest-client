@@ -15,8 +15,8 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 import os
-import re
 import json
+import hashlib
 
 from gi.repository import GConf
 
@@ -71,8 +71,8 @@ class Crop(object):
             path = self.X86_SN_PATH
         if path is not None:
             with open(path, 'r') as file:
-                return re.sub(r'(?!\w).', '', file.read())
-        return ''
+                return hashlib.sha1(file.read().rstrip('\0\n')).hexdigest()
+        return None
 
     def _age(self):
         client = GConf.Client.get_default()
