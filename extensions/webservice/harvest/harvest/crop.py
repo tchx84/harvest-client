@@ -115,6 +115,7 @@ class Crop(object):
         instance.append(_bool(entry.metadata.get('share-scope', None)))
         instance.append(_bool(entry.metadata.get('title_set_by_user', None)))
         instance.append(_bool(entry.metadata.get('keep', None)))
+        instance.append(_str(entry.metadata.get('mime_type', None)))
         instance.append(self._launches(entry))
         return instance
 
@@ -143,3 +144,9 @@ def _int(value):
     if not value:
         return None
     return int(value)
+
+
+def _str(value):
+    if not value:
+        return None
+    return str(value)
