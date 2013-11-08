@@ -31,6 +31,7 @@ from .harvest_logger import HarvestLogger
 
 class Harvest(object):
 
+    RETRY = 3600
     WEEKLY = 604800
     MONTHLY = 2592000
     SKIPS = 7
@@ -38,6 +39,7 @@ class Harvest(object):
     ENDPOINT = '/rpc/store'
     FREQUENCY = '/desktop/sugar/collaboration/harvest_frequency'
     TIMESTAMP = '/desktop/sugar/collaboration/harvest_timestamp'
+    ATTEMPT = '/desktop/sugar/collaboration/harvest_attempt'
     HOSTNAME = '/desktop/sugar/collaboration/harvest_hostname'
     API_KEY = '/desktop/sugar/collaboration/harvest_api_key'
 
@@ -46,12 +48,13 @@ class Harvest(object):
         client = GConf.Client.get_default()
         self._frequency = client.get_int(self.FREQUENCY) or self.WEEKLY
         self._timestamp = client.get_int(self.TIMESTAMP)
+        self._attempt = client.get_int(self.ATTEMPT)
         self._hostname = client.get_string(self.HOSTNAME)
         self._api_key = client.get_string(self.API_KEY)
 
-    def _save_timestamp(self, timestamp):
+    def _save_time(self, path, timestamp):
         client = GConf.Client.get_default()
-        self._last_timestamp = client.set_int(self.TIMESTAMP, timestamp)
+        client.set_int(path, timestamp)
 
     def _selected(self):
         """ randomly determines if it will collect or not """
@@ -59,6 +62,9 @@ class Harvest(object):
 
     def _ready(self, timestamp):
         return (timestamp > self._timestamp + self._frequency)
+
+    def _retry(self, timestamp):
+        return (timestamp > self._attempt + self.RETRY)
 
     def _send(self, data):
         headers = {'x-api-key': self._api_key,
@@ -78,10 +84,10 @@ class Harvest(object):
             'success' in info and \
             info['success'] is True
 
-    def collect(self, skip=True):
+    def collect(self, forced=False):
         HarvestLogger.log('triggered.')
 
-        if skip and not self._selected():
+        if not forced and not self._selected():
             HarvestLogger.log('skipped this time.')
             return
 
@@ -89,6 +95,11 @@ class Harvest(object):
         if not self._ready(timestamp):
             HarvestLogger.log('it is too soon for collecting again.')
             raise TooSoonError()
+
+        if not forced and not self._retry(timestamp):
+            HarvestLogger.log('it is too soon for trying again.')
+            raise TooSoonError()
+        self._save_time(self.ATTEMPT, timestamp)
 
         crop = Crop(start=self._timestamp, end=timestamp)
         crop.collect()
@@ -99,5 +110,5 @@ class Harvest(object):
 
         if not self._send(crop.serialize()):
             raise SendError()
-        self._save_timestamp(timestamp)
+        self._save_time(self.TIMESTAMP, timestamp)
         HarvestLogger.log('successfully collected.')

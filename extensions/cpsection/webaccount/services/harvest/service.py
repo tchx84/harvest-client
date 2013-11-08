@@ -155,7 +155,7 @@ class CollectButtonField(Gtk.HBox):
 
     def __do_collect_cb(self):
         try:
-            self._service.Harvest().collect(skip=False)
+            self._service.Harvest().collect(forced=True)
         except self._service.TooSoonError:
             self.label.set_text(_('Too soon to collect again.'))
         except self._service.NothingNewError:
