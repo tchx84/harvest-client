@@ -34,7 +34,7 @@ class Harvest(object):
     RETRY = 3600
     WEEKLY = 604800
     MONTHLY = 2592000
-    SKIPS = 7
+    SKIPS = 3
 
     ENDPOINT = '/rpc/store'
     FREQUENCY = '/desktop/sugar/collaboration/harvest_frequency'
