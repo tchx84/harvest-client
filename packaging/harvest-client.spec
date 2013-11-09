@@ -1,5 +1,5 @@
 Name:           harvest-client 
-Version:        0.1.0        
+Version:        0.2.0
 Release:        1
 Summary:        Client for the Harvest Project
 
@@ -37,17 +37,21 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %{_datadir}/sugar/extensions/webservice/harvest/__init__.py
 %{_datadir}/sugar/extensions/webservice/harvest/account.py
-%{_datadir}/sugar/extensions/webservice/harvest/harvest
 %{_datadir}/sugar/extensions/webservice/harvest/harvest/__init__.py
 %{_datadir}/sugar/extensions/webservice/harvest/harvest/harvest_logger.py
 %{_datadir}/sugar/extensions/webservice/harvest/harvest/errors.py
 %{_datadir}/sugar/extensions/webservice/harvest/harvest/crop.py
 %{_datadir}/sugar/extensions/webservice/harvest/harvest/harvest.py
-%{_datadir}/sugar/extensions/cpsection/webaccount/services/harvest
 %{_datadir}/sugar/extensions/cpsection/webaccount/services/harvest/__init__.py
 %{_datadir}/sugar/extensions/cpsection/webaccount/services/harvest/service.py
 %{_sysconfdir}/NetworkManager/dispatcher.d/harvest-collect-ifup
 
 %changelog
-*Thu Oct 24 2013 <tch@sugarlabs.org>
--- Initial RPM release.
+* Sat Nov 9 2013 Martin Abente Lahaye <tch@sugarlabs.org>
+- Include mime_type
+- Higher selection probability
+- Limit retries interval
+- Send hashed serial number
+
+*Thu Oct 24 2013 Martin Abente Lahaye <tch@sugarlabs.org>
+- Initial RPM release
