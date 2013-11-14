@@ -27,3 +27,8 @@ collecting reliable metadata from the Journal.
 
         $cd /path/to/somewhere/harvest-client/
         $cp etc/harvest-collect-ifup /etc/NetworkManager/dispatcher.d/
+
+## More Information
+
+If you just want to use this, I recommend you to read the
+wiki documentation at http://wiki.sugarlabs.org/go/Harvest
