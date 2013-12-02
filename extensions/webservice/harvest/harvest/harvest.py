@@ -31,7 +31,8 @@ from .harvest_logger import get_logger
 
 class Harvest(object):
 
-    RETRY = 3600
+    DELAY = 2700
+    OFFSET = 1800
     WEEKLY = 604800
     MONTHLY = 2592000
     SKIPS = 3
@@ -39,7 +40,7 @@ class Harvest(object):
     ENDPOINT = '/rpc/store'
     FREQUENCY = '/desktop/sugar/collaboration/harvest_frequency'
     TIMESTAMP = '/desktop/sugar/collaboration/harvest_timestamp'
-    ATTEMPT = '/desktop/sugar/collaboration/harvest_attempt'
+    RETRY = '/desktop/sugar/collaboration/harvest_retry'
     HOSTNAME = '/desktop/sugar/collaboration/harvest_hostname'
     API_KEY = '/desktop/sugar/collaboration/harvest_api_key'
 
@@ -48,7 +49,7 @@ class Harvest(object):
         client = GConf.Client.get_default()
         self._frequency = client.get_int(self.FREQUENCY) or self.WEEKLY
         self._timestamp = client.get_int(self.TIMESTAMP)
-        self._attempt = client.get_int(self.ATTEMPT)
+        self._retry_timestamp = client.get_int(self.RETRY)
         self._hostname = client.get_string(self.HOSTNAME)
         self._api_key = client.get_string(self.API_KEY)
 
@@ -63,8 +64,12 @@ class Harvest(object):
     def _ready(self, timestamp):
         return (timestamp > self._timestamp + self._frequency)
 
-    def _retry(self, timestamp):
-        return (timestamp > self._attempt + self.RETRY)
+    def _retry_ready(self, timestamp):
+        return (timestamp >= self._retry_timestamp)
+
+    def _retry_in(self, timestamp):
+        """ retry allowed between 45 and 75 minutes since timestamp """
+        return (timestamp + self.DELAY + (self.OFFSET * random.random()))
 
     def _send(self, data):
         headers = {'x-api-key': self._api_key,
@@ -100,10 +105,10 @@ class Harvest(object):
             self._logger.debug('it is too soon for collecting again.')
             raise TooSoonError()
 
-        if not forced and not self._retry(timestamp):
+        if not forced and not self._retry_ready(timestamp):
             self._logger.debug('it is too soon for trying again.')
             raise TooSoonError()
-        self._save_time(self.ATTEMPT, timestamp)
+        self._save_time(self.RETRY, self._retry_in(timestamp))
 
         crop = Crop(start=self._timestamp, end=timestamp)
         crop.collect()
