@@ -33,6 +33,8 @@ class Crop(object):
     X86_SN_PATH = '/proc/device-tree/serial-number'
     AGE_PATH = '/desktop/sugar/user/birth_timestamp'
     GENDER_PATH = '/desktop/sugar/user/gender'
+    BUILD_PATH = '/boot/olpc_build'
+    UPDATED_PATH = '/var/lib/misc/last_os_update.stamp'
 
     def __init__(self, start=None, end=None):
         self._start = start
@@ -47,21 +49,23 @@ class Crop(object):
     def grown(self):
         if not self._data:
             raise CropErrorNotReady()
-        if not self._data[1].keys():
+        if not self._data[2].keys():
             return False
         return True
 
     def collect(self):
         self._data = []
+        self._data.append(self._laptop())
         self._data.append(self._learner())
         self._data.append(self._activities())
 
-    def _learner(self):
-        learner = []
-        learner.append(self._serial_number())
-        learner.append(self._age())
-        learner.append(self._gender())
-        return learner
+    def _laptop(self):
+        laptop = []
+        laptop.append(self._serial_number())
+        laptop.append(self._build())
+        laptop.append(self._updated())
+        laptop.append(self._collected())
+        return laptop
 
     def _serial_number(self):
         path = None
@@ -73,6 +77,26 @@ class Crop(object):
             with open(path, 'r') as file:
                 return hashlib.sha1(file.read().rstrip('\0\n')).hexdigest()
         return None
+
+    def _build(self):
+        if os.path.exists(self.BUILD_PATH):
+            with open(self.BUILD_PATH, 'r') as file:
+                return file.read().rstrip('\0\n')
+        return None
+
+    def _updated(self):
+        if os.path.exists(self.UPDATED_PATH):
+            return int(os.stat(self.UPDATED_PATH).st_mtime)
+        return None
+
+    def _collected(self):
+        return self._end
+
+    def _learner(self):
+        learner = []
+        learner.append(self._age())
+        learner.append(self._gender())
+        return learner
 
     def _age(self):
         client = GConf.Client.get_default()
