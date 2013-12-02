@@ -16,28 +16,40 @@
 
 import os
 import logging
+from logging import Logger
 from logging import Formatter
 from logging.handlers import RotatingFileHandler
 
 
-class HarvestLogger:
+_logger = None
+
+
+class HarvestLogger(Logger):
 
     LOG_NAME = 'harvest'
     LOG_FILE = '~/.harvest.log'
-    LOG_FORMAT = '%(asctime)s - %(levelname)s :: %(message)s'
+    LOG_FORMAT = '%(created)f %(levelname)s %(name)s: %(message)s'
+    LOG_COUNT = 1
+    LOG_SIZE = 1048576
+    LOG_LEVEL = 'SUGAR_LOGGER_LEVEL'
 
-    @classmethod
-    def setup(cls):
-        if hasattr(cls, 'logger'):
-            return
-        cls.logger = logging.getLogger(cls.LOG_NAME)
-        cls.logger.setLevel(logging.DEBUG)
-        log_file = RotatingFileHandler(os.path.expanduser(cls.LOG_FILE),
-                                       maxBytes=1048576, backupCount=3)
-        log_file.setFormatter(Formatter(cls.LOG_FORMAT))
-        cls.logger.addHandler(log_file)
-        cls.logger.info('logger started.')
+    def __init__(self):
+        level = logging.INFO
+        if self.LOG_LEVEL in os.environ and \
+           os.environ[self.LOG_LEVEL] == 'debug':
+            level = logging.DEBUG
 
-    @classmethod
-    def log(cls, message):
-        cls.logger.debug(message)
+        Logger.__init__(self, self.LOG_NAME, level)
+
+        log_file = RotatingFileHandler(os.path.expanduser(self.LOG_FILE),
+                                       maxBytes=self.LOG_SIZE,
+                                       backupCount=self.LOG_COUNT)
+        log_file.setFormatter(Formatter(self.LOG_FORMAT))
+        self.addHandler(log_file)
+
+
+def get_logger():
+    global _logger
+    if _logger is None:
+        _logger = HarvestLogger()
+    return _logger

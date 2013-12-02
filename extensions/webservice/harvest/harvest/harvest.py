@@ -26,7 +26,7 @@ from .crop import Crop
 from .errors import TooSoonError
 from .errors import NothingNewError
 from .errors import SendError
-from .harvest_logger import HarvestLogger
+from .harvest_logger import get_logger
 
 
 class Harvest(object):
@@ -44,7 +44,7 @@ class Harvest(object):
     API_KEY = '/desktop/sugar/collaboration/harvest_api_key'
 
     def __init__(self):
-        HarvestLogger.setup()
+        self._logger = get_logger()
         client = GConf.Client.get_default()
         self._frequency = client.get_int(self.FREQUENCY) or self.WEEKLY
         self._timestamp = client.get_int(self.TIMESTAMP)
@@ -77,7 +77,7 @@ class Harvest(object):
             response = urllib2.urlopen(req)
             info = json.loads(response.read())
         except Exception as err:
-            HarvestLogger.log(err)
+            self._logger.error(err)
             return False
 
         return isinstance(info, dict) and \
@@ -85,19 +85,19 @@ class Harvest(object):
             info['success'] is True
 
     def collect(self, forced=False):
-        HarvestLogger.log('triggered.')
+        self._logger.debug('triggered.')
 
         if not forced and not self._selected():
-            HarvestLogger.log('skipped this time.')
+            self._logger.debug('skipped this time.')
             return
 
         timestamp = int(time.time())
         if not self._ready(timestamp):
-            HarvestLogger.log('it is too soon for collecting again.')
+            self._logger.debug('it is too soon for collecting again.')
             raise TooSoonError()
 
         if not forced and not self._retry(timestamp):
-            HarvestLogger.log('it is too soon for trying again.')
+            self._logger.debug('it is too soon for trying again.')
             raise TooSoonError()
         self._save_time(self.ATTEMPT, timestamp)
 
@@ -105,10 +105,10 @@ class Harvest(object):
         crop.collect()
 
         if not crop.grown():
-            HarvestLogger.log('nothing new has grown.')
+            self._logger.debug('nothing new has grown.')
             raise NothingNewError()
 
         if not self._send(crop.serialize()):
             raise SendError()
         self._save_time(self.TIMESTAMP, timestamp)
-        HarvestLogger.log('successfully collected.')
+        self._logger.info('successfully collected.')
