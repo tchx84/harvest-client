@@ -87,6 +87,10 @@ class Harvest(object):
     def collect(self, forced=False):
         self._logger.debug('triggered.')
 
+        if not self._hostname or not self._api_key:
+            self._logger.error('server information is missing')
+            return
+
         if not forced and not self._selected():
             self._logger.debug('skipped this time.')
             return
