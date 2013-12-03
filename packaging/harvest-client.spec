@@ -1,5 +1,5 @@
 Name:           harvest-client 
-Version:        0.2.0
+Version:        0.3.0
 Release:        1
 Summary:        Client for the Harvest Project
 
@@ -7,7 +7,7 @@ License:        GPLv2+
 URL:            https://github.com/tchx84/harvest-client
 Source0:        %{name}-%{version}.tar.gz
 
-Requires:       python >= 2.7
+Requires:       python >= 2.7, sugar >= 0.100
 
 BuildArch:      noarch
 
@@ -47,6 +47,14 @@ rm -rf $RPM_BUILD_ROOT
 %{_sysconfdir}/NetworkManager/dispatcher.d/harvest-collect-ifup
 
 %changelog
+* Thu Dec 5 2013 Martin Abente Lahaye <tch@sugarlabs.org>
+- Refactor and adjust logger coding style
+- Ignore trigger when missing server
+- Use random retry time
+- Collect laptops data
+- Save crops on failure and restore on retry
+- Use libsoup instead of urllib2
+
 * Sat Nov 9 2013 Martin Abente Lahaye <tch@sugarlabs.org>
 - Include mime_type
 - Higher selection probability
