@@ -29,6 +29,8 @@ class CropErrorNotReady:
 
 class Crop(object):
 
+    VERSION = '000300'
+
     ARM_SN_PATH = '/ofw/serial-number/serial-number'
     X86_SN_PATH = '/proc/device-tree/serial-number'
     AGE_PATH = '/desktop/sugar/user/birth_timestamp'

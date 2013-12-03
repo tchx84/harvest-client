@@ -27,7 +27,7 @@ _logger = None
 class HarvestLogger(Logger):
 
     LOG_NAME = 'harvest'
-    LOG_FILE = '~/.harvest.log'
+    LOG_FILE = '~/.harvest/log'
     LOG_FORMAT = '%(created)f %(levelname)s %(name)s: %(message)s'
     LOG_COUNT = 1
     LOG_SIZE = 1048576
