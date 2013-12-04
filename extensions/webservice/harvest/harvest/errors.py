@@ -15,6 +15,14 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 
+class MissingInfoError(Exception):
+    pass
+
+
+class NotSelectedError(Exception):
+    pass
+
+
 class TooSoonError(Exception):
     pass
 

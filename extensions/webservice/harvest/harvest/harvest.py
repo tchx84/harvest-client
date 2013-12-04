@@ -24,6 +24,8 @@ import urlparse
 from gi.repository import GConf
 
 from .crop import Crop
+from .errors import MissingInfoError
+from .errors import NotSelectedError
 from .errors import TooSoonError
 from .errors import NothingNewError
 from .errors import SendError
@@ -146,11 +148,11 @@ class Harvest(object):
 
         if not self._hostname or not self._api_key:
             self._logger.error('server information is missing')
-            return
+            raise MissingInfoError()
 
         if not forced and not self._selected():
             self._logger.debug('skipped this time.')
-            return
+            raise NotSelectedError()
 
         timestamp = int(time.time())
         if not self._ready(timestamp):
