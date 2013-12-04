@@ -115,8 +115,8 @@ class InfoField(Gtk.Label):
         self._set_notifier()
 
     def _set_notifier(self):
-       client = GConf.Client.get_default()
-       self._notify = client.notify_add(self._path, self.__set_label_cb, None)
+        client = GConf.Client.get_default()
+        self._notify = client.notify_add(self._path, self.__set_label_cb, None)
 
     def __set_label_cb(self, *args):
         self._set_label()
