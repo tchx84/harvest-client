@@ -18,10 +18,10 @@ import os
 import time
 import random
 import json
-import urllib2
 import urlparse
 
 from gi.repository import GConf
+from gi.repository import Soup
 
 from .crop import Crop
 from .errors import MissingInfoError
@@ -85,22 +85,21 @@ class Harvest(object):
         return (timestamp + self.DELAY + (self.OFFSET * random.random()))
 
     def _send(self, data):
-        headers = {'x-api-key': self._api_key,
-                   'Content-Type': 'application/json'}
-        url = urlparse.urljoin(self._hostname, self.ENDPOINT)
+        uri = Soup.URI.new(urlparse.urljoin(self._hostname, self.ENDPOINT))
+        message = Soup.Message(method='POST', uri=uri)
+        message.request_headers.append('x-api-key', self._api_key)
+        message.set_request('application/json',
+                            Soup.MemoryUse.COPY,
+                            data, len(data))
 
-        info = None
-        req = urllib2.Request(url, data, headers)
-        try:
-            response = urllib2.urlopen(req)
-            info = json.loads(response.read())
-        except Exception as err:
-            self._logger.error(err)
-            return False
+        session = Soup.SessionSync()
+        session.add_feature_by_type(Soup.ProxyResolverDefault)
+        session.send_message(message)
 
-        return isinstance(info, dict) and \
-            'success' in info and \
-            info['success'] is True
+        if message.status_code == 200:
+            return True
+        self._logger.debug('could not send data: %d', message.status_code)
+        return False
 
     def _retry_valid(self):
         if not os.path.exists(self._crop_path):
