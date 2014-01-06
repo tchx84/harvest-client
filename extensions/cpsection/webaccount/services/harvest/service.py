@@ -228,13 +228,20 @@ class AutoEntry(Gtk.Entry):
     __gtype_name__ = 'SugarAutoEntry'
 
     DELAY = 1
+    EDITABLE = '/desktop/sugar/collaboration/harvest_editable'
 
     def __init__(self, path):
         Gtk.Entry.__init__(self)
         self._path = path
         self._timeout_id = None
         self._restore_text()
+        self._set_editable()
         self.connect('key-press-event', self.__pressed_start_cb)
+
+    def _set_editable(self):
+        client = GConf.Client.get_default()
+        if client.get_bool(self.EDITABLE) is False:
+            self.props.editable = False
 
     def _restore_text(self):
         client = GConf.Client.get_default()
