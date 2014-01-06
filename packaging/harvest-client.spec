@@ -1,5 +1,5 @@
 Name:           harvest-client 
-Version:        0.3.0
+Version:        0.3.1
 Release:        1
 Summary:        Client for the Harvest Project
 
@@ -47,6 +47,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_sysconfdir}/NetworkManager/dispatcher.d/harvest-collect-ifup
 
 %changelog
+* Mon Jan 6 2014 Martin Abente Lahaye <tch@sugarlabs.org>
+- Set URL and API-KEY non-editable
+
 * Thu Dec 5 2013 Martin Abente Lahaye <tch@sugarlabs.org>
 - Refactor and adjust logger coding style
 - Ignore trigger when missing server
