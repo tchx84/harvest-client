@@ -1,6 +1,6 @@
 Name:           harvest-client 
 Version:        0.3.1
-Release:        1
+Release:        2
 Summary:        Client for the Harvest Project
 
 License:        GPLv2+
@@ -47,6 +47,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_sysconfdir}/NetworkManager/dispatcher.d/harvest-collect-ifup
 
 %changelog
+* Fri Jan 24 2014 Martin Abente Lahaye <tch@sugarlabs.org>
+- Check if serial, age and gender are present before collect
+
 * Mon Jan 6 2014 Martin Abente Lahaye <tch@sugarlabs.org>
 - Set URL and API-KEY non-editable
 
