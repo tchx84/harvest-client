@@ -164,6 +164,8 @@ class CollectButtonField(Gtk.HBox):
             self.label.set_text(_('Nothing new to collect.'))
         except self._service.SendError:
             self.label.set_text(_('Could not be collected.'))
+        except self._service.NoCharacteristicsError:
+            self.label.set_text(_('Missing learners characteristics'))
         else:
             self.label.set_text(_('Successfully collected.'))
 

@@ -17,7 +17,6 @@
 import os
 import time
 import random
-import json
 import urlparse
 
 from gi.repository import GConf
@@ -29,6 +28,7 @@ from .errors import NotSelectedError
 from .errors import TooSoonError
 from .errors import NothingNewError
 from .errors import SendError
+from .errors import NoCharacteristicsError
 from .harvest_logger import get_logger
 
 
@@ -136,6 +136,12 @@ class Harvest(object):
     def _do_collect(self, timestamp):
         self._logger.debug('collecting crop.')
         crop = Crop(start=self._timestamp, end=timestamp)
+
+        # do not collect it, if we already know it will be rejected
+        if not crop.characterizable():
+            self._logger.debug('missing learner characteristics.')
+            raise NoCharacteristicsError()
+
         crop.collect()
         if not crop.grown():
             self._logger.debug('nothing new has grown.')

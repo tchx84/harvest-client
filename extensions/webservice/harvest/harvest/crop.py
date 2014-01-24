@@ -29,7 +29,7 @@ class CropErrorNotReady:
 
 class Crop(object):
 
-    VERSION = '000300'
+    VERSION = '000312'
 
     ARM_SN_PATH = '/ofw/serial-number/serial-number'
     X86_SN_PATH = '/proc/device-tree/serial-number'
@@ -52,6 +52,14 @@ class Crop(object):
         if not self._data:
             raise CropErrorNotReady()
         if not self._data[2].keys():
+            return False
+        return True
+
+    def characterizable(self):
+        """ check if all learner characteristics are available """
+        if self._serial_number() is None or \
+           self._age() is None or \
+           self._gender() is None:
             return False
         return True
 

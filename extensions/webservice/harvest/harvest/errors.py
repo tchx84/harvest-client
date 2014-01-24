@@ -33,3 +33,7 @@ class NothingNewError(Exception):
 
 class SendError(Exception):
     pass
+
+
+class NoCharacteristicsError(Exception):
+    pass
