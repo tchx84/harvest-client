@@ -41,6 +41,7 @@ class Harvest(object):
     SKIPS = 3
 
     ENDPOINT = '/rpc/store'
+    NOT_ENABLED = '/desktop/sugar/collaboration/harvest_not_enabled'
     FREQUENCY = '/desktop/sugar/collaboration/harvest_frequency'
     TIMESTAMP = '/desktop/sugar/collaboration/harvest_timestamp'
     RETRY = '/desktop/sugar/collaboration/harvest_retry'
@@ -60,11 +61,18 @@ class Harvest(object):
         self._logger = get_logger()
 
         client = GConf.Client.get_default()
+        self._not_enabled = client.get_bool(self.NOT_ENABLED)
         self._frequency = client.get_int(self.FREQUENCY) or self.WEEKLY
         self._timestamp = client.get_int(self.TIMESTAMP)
         self._retry_timestamp = client.get_int(self.RETRY)
         self._hostname = client.get_string(self.HOSTNAME)
         self._api_key = client.get_string(self.API_KEY)
+
+    def is_not_enabled(self):
+        if self._not_enabled is True:
+            self._logger.debug('automatic collection is not enabled')
+            return True
+        return False
 
     def _save_time(self, path, timestamp):
         client = GConf.Client.get_default()

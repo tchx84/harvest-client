@@ -36,9 +36,11 @@ class Account(account.Account):
         GLib.idle_add(self.__collect_cb)
 
     def __collect_cb(self):
-        service = accountsmanager.get_service('harvest')
+        harvest = accountsmanager.get_service('harvest').Harvest()
+        if harvest.is_not_enabled():
+            return
         try:
-            service.Harvest().collect()
+            harvest.collect()
         except Exception:
             pass
 
