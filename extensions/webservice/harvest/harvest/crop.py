@@ -21,6 +21,8 @@ import hashlib
 from gi.repository import GConf
 
 from sugar3.datastore import datastore
+from jarabe.intro.agepicker import calculate_age
+from jarabe.intro.agepicker import age_to_group_label
 
 
 class CropErrorNotReady:
@@ -106,6 +108,7 @@ class Crop(object):
         learner = []
         learner.append(self._age())
         learner.append(self._gender())
+        learner.append(self._grouping())
         return learner
 
     def _age(self):
@@ -118,6 +121,10 @@ class Crop(object):
     def _gender(self):
         client = GConf.Client.get_default()
         return client.get_string(self.GENDER_PATH)
+
+    def _grouping(self):
+        age = calculate_age(self._age())
+        return age_to_group_label(age)
 
     def _activities(self):
         activities = {}
