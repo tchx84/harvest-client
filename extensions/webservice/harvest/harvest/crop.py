@@ -21,8 +21,6 @@ import hashlib
 from gi.repository import GConf
 
 from sugar3.datastore import datastore
-from jarabe.intro.agepicker import calculate_age
-from jarabe.intro.agepicker import age_to_group_label
 
 
 class CropErrorNotReady:
@@ -123,8 +121,14 @@ class Crop(object):
         return client.get_string(self.GENDER_PATH)
 
     def _grouping(self):
-        age = calculate_age(self._age())
-        return age_to_group_label(age)
+        try:
+            from jarabe.intro.agepicker import calculate_age
+            from jarabe.intro.agepicker import age_to_group_label
+
+            age = calculate_age(self._age())
+            return age_to_group_label(age)
+        except:
+            return ''
 
     def _activities(self):
         activities = {}
