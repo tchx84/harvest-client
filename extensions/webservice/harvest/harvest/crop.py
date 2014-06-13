@@ -29,7 +29,7 @@ class CropErrorNotReady:
 
 class Crop(object):
 
-    VERSION = '000312'
+    VERSION = '000400'
 
     ARM_SN_PATH = '/ofw/serial-number/serial-number'
     X86_SN_PATH = '/proc/device-tree/serial-number'
