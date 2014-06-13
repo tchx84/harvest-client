@@ -68,6 +68,7 @@ class Crop(object):
         self._data.append(self._laptop())
         self._data.append(self._learner())
         self._data.append(self._activities())
+        self._data.append(self._counters())
 
     def _laptop(self):
         laptop = []
@@ -183,6 +184,27 @@ class Crop(object):
             spent_times = map(_int, spent_times.split(', '))
 
         return zip(launch_times, spent_times)
+
+    def _counters(self):
+        try:
+            import imp
+            import time
+            from datetime import datetime
+
+            path = '/opt/harvest-monitor/harvest/log.py'
+            module = imp.load_source('', path)
+            log = module.Log()
+
+            start_date = datetime.fromtimestamp(self._start or 0)
+            start = int(time.mktime(start_date.date().timetuple()))
+
+            counters = []
+            for entry in log.find(start, self._end):
+                counters.append(entry)
+        except:
+            counters = []
+
+        return counters
 
 
 def _bool(value):
