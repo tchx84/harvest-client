@@ -1,5 +1,5 @@
 Name:           harvest-client 
-Version:        0.3.2
+Version:        0.4.0
 Release:        1
 Summary:        Client for the Harvest Project
 
