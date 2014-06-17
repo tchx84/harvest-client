@@ -47,6 +47,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_sysconfdir}/NetworkManager/dispatcher.d/harvest-collect-ifup
 
 %changelog
+* Tue Jun 17 2014 Martin Abente Lahaye <tch@sugarlabs.org>
+- landed grades, times and traffic changes.
+
 * Wed Feb 05 2014 Martin Abente Lahaye <tch@sugarlabs.org>
 - Support not enabling automatic collection
 
