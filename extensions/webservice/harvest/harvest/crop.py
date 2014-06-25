@@ -15,8 +15,10 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 import os
+import re
 import json
 import hashlib
+import subprocess
 
 from gi.repository import GConf
 
@@ -37,6 +39,10 @@ class Crop(object):
     GENDER_PATH = '/desktop/sugar/user/gender'
     BUILD_PATH = '/boot/olpc_build'
     UPDATED_PATH = '/var/lib/misc/last_os_update.stamp'
+
+    SS_REPONAME_PATH = '/desktop/sugar/collaboration/harvest_reponame'
+    SS_RE = '@%s(\s*)(\d+):(\w+)'
+    SS_CMD = 'su --session-command "/usr/bin/yum -C version installed -v"'
 
     def __init__(self, start=None, end=None):
         self._start = start
@@ -74,6 +80,7 @@ class Crop(object):
         laptop = []
         laptop.append(self._serial_number())
         laptop.append(self._build())
+        laptop.append(self._snapshot())
         laptop.append(self._updated())
         laptop.append(self._collected())
         return laptop
@@ -94,6 +101,20 @@ class Crop(object):
             with open(self.BUILD_PATH, 'r') as file:
                 return file.read().rstrip('\0\n')
         return None
+
+    def _snapshot(self):
+        client = GConf.Client.get_default()
+        reponame = client.get_string(self.SS_REPONAME_PATH)
+
+        if not reponame:
+            return None
+
+        try:
+            raw = subprocess.check_output(self.SS_CMD, shell=True)
+            match = re.search(self.SS_RE % reponame, raw)
+            return match.groups(0)[2]
+        except:
+            return None
 
     def _updated(self):
         if os.path.exists(self.UPDATED_PATH):
