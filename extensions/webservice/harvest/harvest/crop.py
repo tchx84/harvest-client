@@ -17,6 +17,7 @@
 import os
 import json
 import hashlib
+import subprocess
 
 from gi.repository import GConf
 
@@ -74,6 +75,7 @@ class Crop(object):
         laptop = []
         laptop.append(self._serial_number())
         laptop.append(self._build())
+        laptop.append(self._snapshot())
         laptop.append(self._updated())
         laptop.append(self._collected())
         return laptop
@@ -94,6 +96,15 @@ class Crop(object):
             with open(self.BUILD_PATH, 'r') as file:
                 return file.read().rstrip('\0\n')
         return None
+
+    def _snapshot(self):
+        try:
+            # only use the first 8 characters
+            LENGTH = 8
+            SNAPSHOT_CMD = '/usr/bin/rpm -qa | sort | sha1sum'
+            return subprocess.check_output(SNAPSHOT_CMD, shell=True)[:LENGTH]
+        except:
+            return None
 
     def _updated(self):
         if os.path.exists(self.UPDATED_PATH):
