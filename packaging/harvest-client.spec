@@ -1,5 +1,5 @@
 Name:           harvest-client 
-Version:        0.4.1
+Version:        0.4.2
 Release:        1
 Summary:        Client for the Harvest Project
 
@@ -47,6 +47,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_sysconfdir}/NetworkManager/dispatcher.d/harvest-collect-ifup
 
 %changelog
+* Wed Jul 16 2014 Martin Abente Lahaye <tch@sugarlabs.org>
+- do not report birthdate
+
 * Tue Jun 17 2014 Martin Abente Lahaye <tch@sugarlabs.org>
 - landed grades, times and traffic changes.
 
