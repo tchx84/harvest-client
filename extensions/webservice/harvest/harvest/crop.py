@@ -64,7 +64,7 @@ class Crop(object):
     def characterizable(self):
         """ check if all learner characteristics are available """
         if self._serial_number() is None or \
-           self._age() is None or \
+           self._grouping() is None or \
            self._gender() is None:
             return False
         return True
@@ -126,7 +126,7 @@ class Crop(object):
 
     def _learner(self):
         learner = []
-        learner.append(self._age())
+        learner.append(0)
         learner.append(self._gender())
         learner.append(self._grouping())
         return learner
