@@ -132,8 +132,11 @@ class Crop(object):
         return learner
 
     def _age(self):
-        # XXX we only send this because of legacy data.
-        return 0
+        client = GConf.Client.get_default()
+        age = client.get_int(self.AGE_PATH)
+        if not age:
+            return None
+        return age
 
     def _gender(self):
         client = GConf.Client.get_default()
