@@ -1,6 +1,6 @@
 Name:           harvest-client 
 Version:        0.4.2
-Release:        1
+Release:        2
 Summary:        Client for the Harvest Project
 
 License:        GPLv2+
