@@ -31,7 +31,7 @@ class CropErrorNotReady:
 
 class Crop(object):
 
-    VERSION = '000401'
+    VERSION = '000501'
 
     ARM_SN_PATH = '/ofw/serial-number/serial-number'
     X86_SN_PATH = '/proc/device-tree/serial-number'
@@ -44,10 +44,11 @@ class Crop(object):
     SS_RE = '@%s(\s*)(\d+):(\w+)'
     SS_CMD = 'su --session-command "/usr/bin/yum -C version installed -v"'
 
-    def __init__(self, start=None, end=None):
+    def __init__(self, start=None, end=None, collect_extras=False):
         self._start = start
         self._end = end
         self._data = None
+        self._collect_extras = collect_extras
 
     def serialize(self):
         if not self._data:
@@ -73,8 +74,10 @@ class Crop(object):
         self._data = []
         self._data.append(self._laptop())
         self._data.append(self._learner())
-        self._data.append(self._activities())
+        activities, extras = self._activities()
+        self._data.append(activities)
         self._data.append(self._counters())
+        self._data.append(extras)
 
     def _laptop(self):
         laptop = []
@@ -154,13 +157,18 @@ class Crop(object):
 
     def _activities(self):
         activities = {}
+        extras = {}
         entries, count = datastore.find(self._query())
         for entry in entries:
             activity_id = entry.metadata.get('activity', '')
             if activity_id not in activities:
                 activities[activity_id] = []
             activities[activity_id].append(self._instance(entry))
-        return activities
+            if self._collect_extras:
+                if activity_id not in extras:
+                    extras[activity_id] = []
+                extras[activity_id].append(self._extras(entry))
+        return activities, extras
 
     def _query(self):
         query = {}
@@ -184,6 +192,22 @@ class Crop(object):
         instance.append(_str(entry.metadata.get('mime_type', None)))
         instance.append(self._times(entry))
         return instance
+
+    def _extras(self, entry):
+        # collect extra metadata saved by the activities
+        # these fields are already collected, or are big and not useful like
+        # the preview. 'cover_image' is used by GetBooks activity
+        excluded = [
+            'filesize', 'creation_time', 'timestamp', 'share-scope', 'keep',
+            'title_set_by_user', 'mime_type', 'buddies', 'launch-times',
+            'spent-times', 'activity', 'object_id', 'icon-color', 'mtime',
+            'preview', 'cover_image']
+        extras = {}
+        extras['object_id'] = entry.get_object_id()
+        for field in entry.metadata.keys():
+            if field not in excluded:
+                extras[field] = entry.metadata.get(field)
+        return extras
 
     def _buddies(self, entry):
         buddies = entry.metadata.get('buddies', None)
