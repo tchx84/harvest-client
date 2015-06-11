@@ -47,6 +47,7 @@ class Harvest(object):
     RETRY = '/desktop/sugar/collaboration/harvest_retry'
     HOSTNAME = '/desktop/sugar/collaboration/harvest_hostname'
     API_KEY = '/desktop/sugar/collaboration/harvest_api_key'
+    EXTRAS = '/desktop/sugar/collaboration/collect_extras'
     WORKING_PATH = '~/.harvest/'
     CROP_FILE = 'crop'
     VERSION_FILE = 'crop.version'
@@ -67,6 +68,7 @@ class Harvest(object):
         self._retry_timestamp = client.get_int(self.RETRY)
         self._hostname = client.get_string(self.HOSTNAME)
         self._api_key = client.get_string(self.API_KEY)
+        self._collect_extras = client.get_bool(self.EXTRAS)
 
     def is_not_enabled(self):
         if self._not_enabled is True:
@@ -143,7 +145,8 @@ class Harvest(object):
 
     def _do_collect(self, timestamp):
         self._logger.debug('collecting crop.')
-        crop = Crop(start=self._timestamp, end=timestamp)
+        crop = Crop(start=self._timestamp, end=timestamp,
+                    collect_extras=self._collect_extras)
 
         # do not collect it, if we already know it will be rejected
         if not crop.characterizable():
